@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Concierge ✈️</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">✈️ Travel Concierge</div>
+    <div class="nav-links">
+      <a href="/">Destinations</a>
+      <a href="/planner">Trip Planner</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Your AI-Powered Travel Companion</h1>
+      <p>Discover amazing destinations, plan your perfect trip, and travel smarter.</p>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search destinations…" />
+        <button onclick="filterDestinations()">Search</button>
+      </div>
+      <div class="tag-filters">
+        <button class="tag-btn" onclick="filterByTag('')">All</button>
+        <button class="tag-btn" onclick="filterByTag('beach')">🏖️ Beach</button>
+        <button class="tag-btn" onclick="filterByTag('culture')">🎭 Culture</button>
+        <button class="tag-btn" onclick="filterByTag('adventure')">🧗 Adventure</button>
+        <button class="tag-btn" onclick="filterByTag('food')">🍽️ Food</button>
+        <button class="tag-btn" onclick="filterByTag('romantic')">💑 Romantic</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Featured Destinations</h2>
+    <div class="destinations-grid" id="destinationsGrid">
+      {% for dest in destinations %}
+      <a href="/destination/{{ dest.id }}" class="card-link">
+        <div class="card" data-tags="{{ dest.tags | join(' ') }}" data-name="{{ dest.name | lower }}" data-desc="{{ dest.description | lower }}">
+          <div class="card-emoji">{{ dest.emoji }}</div>
+          <div class="card-body">
+            <h3>{{ dest.name }}</h3>
+            <p>{{ dest.description }}</p>
+            <div class="card-meta">
+              <span class="meta-item">🗓️ {{ dest.best_time }}</span>
+              <span class="meta-item">💰 {{ dest.budget_per_day }}/day</span>
+            </div>
+            <div class="card-tags">
+              {% for tag in dest.tags %}
+              <span class="tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <section class="tips-section">
+      <h2 class="section-title">💡 Travel Tips</h2>
+      <div id="tipCard" class="tip-card">
+        <p id="tipText">Loading travel tip…</p>
+        <button onclick="nextTip()">Next Tip →</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>✈️ Travel Concierge &mdash; Built during the S&amp;T AI Session &mdash; UWCC, June 2026</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

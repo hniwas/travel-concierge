@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Planner – Travel Concierge</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><a href="/" style="color:inherit;text-decoration:none;">✈️ Travel Concierge</a></div>
+    <div class="nav-links">
+      <a href="/">Destinations</a>
+      <a href="/planner">Trip Planner</a>
+    </div>
+  </nav>
+
+  <div class="dest-hero">
+    <div class="dest-emoji">🗺️</div>
+    <h1>Trip Planner</h1>
+    <p>Build your personalised travel itinerary in minutes.</p>
+  </div>
+
+  <main class="container">
+    <div class="planner-grid">
+      <section class="planner-form card-static">
+        <h2>📝 Plan Your Trip</h2>
+        <form id="plannerForm" onsubmit="generatePlan(event)">
+          <div class="form-group">
+            <label for="destination">Destination</label>
+            <select id="destination" required>
+              <option value="">-- Select a destination --</option>
+              {% for dest in destinations %}
+              <option value="{{ dest.id }}">{{ dest.emoji }} {{ dest.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="duration">Trip Duration (days)</label>
+            <input type="number" id="duration" min="1" max="30" value="5" required />
+          </div>
+          <div class="form-group">
+            <label for="travelStyle">Travel Style</label>
+            <select id="travelStyle">
+              <option value="relaxed">😌 Relaxed</option>
+              <option value="moderate" selected>🚶 Moderate</option>
+              <option value="intensive">🏃 Intensive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="interests">Interests (comma separated)</label>
+            <input type="text" id="interests" placeholder="e.g. history, food, art" />
+          </div>
+          <button type="submit" class="btn-primary">Generate Itinerary</button>
+        </form>
+      </section>
+
+      <section class="planner-result card-static" id="itinerarySection" style="display:none;">
+        <h2>🗓️ Your Itinerary</h2>
+        <div id="itineraryOutput"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>✈️ Travel Concierge &mdash; Built during the S&amp;T AI Session &mdash; UWCC, June 2026</p>
+  </footer>
+
+  <script>
+    const DESTINATIONS = {{ destinations | tojson }};
+
+    function generatePlan(e) {
+      e.preventDefault();
+      const destId = parseInt(document.getElementById('destination').value);
+      const duration = parseInt(document.getElementById('duration').value);
+      const style = document.getElementById('travelStyle').value;
+      const interests = document.getElementById('interests').value
+        .split(',').map(s => s.trim()).filter(Boolean);
+
+      const dest = DESTINATIONS.find(d => d.id === destId);
+      if (!dest) return;
+
+      const activitiesPerDay = style === 'relaxed' ? 2 : style === 'moderate' ? 3 : 4;
+      const highlights = [...dest.highlights];
+      const days = [];
+
+      for (let i = 0; i < duration; i++) {
+        const dayActivities = [];
+        for (let j = 0; j < activitiesPerDay; j++) {
+          const idx = (i * activitiesPerDay + j) % highlights.length;
+          dayActivities.push(highlights[idx]);
+        }
+        days.push({ day: i + 1, activities: dayActivities });
+      }
+
+      const section = document.getElementById('itinerarySection');
+      const output = document.getElementById('itineraryOutput');
+      section.style.display = 'block';
+
+      // Build itinerary using DOM methods to avoid XSS
+      output.textContent = '';
+
+      const heading = document.createElement('h3');
+      heading.textContent = `${dest.emoji} ${dest.name} \u2014 ${duration}-Day Trip`;
+      output.appendChild(heading);
+
+      const meta = document.createElement('p');
+      const styleBold = document.createElement('strong');
+      styleBold.textContent = 'Style:';
+      const budgetBold = document.createElement('strong');
+      budgetBold.textContent = 'Budget:';
+      meta.appendChild(styleBold);
+      meta.appendChild(document.createTextNode(` ${style.charAt(0).toUpperCase() + style.slice(1)} | `));
+      meta.appendChild(budgetBold);
+      meta.appendChild(document.createTextNode(` ${dest.budget_per_day}/day`));
+      output.appendChild(meta);
+
+      const daysContainer = document.createElement('div');
+      daysContainer.className = 'itinerary-days';
+      days.forEach(({ day, activities }) => {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'itinerary-day';
+        const dayHeading = document.createElement('h4');
+        dayHeading.textContent = `Day ${day}`;
+        const ul = document.createElement('ul');
+        activities.forEach(a => {
+          const li = document.createElement('li');
+          li.textContent = a;
+          ul.appendChild(li);
+        });
+        dayDiv.appendChild(dayHeading);
+        dayDiv.appendChild(ul);
+        daysContainer.appendChild(dayDiv);
+      });
+      output.appendChild(daysContainer);
+
+      if (interests.length > 0) {
+        const note = document.createElement('p');
+        note.className = 'interests-note';
+        const em = document.createElement('em');
+        em.textContent = interests.join(', ');
+        note.appendChild(document.createTextNode('💡 We\'ve tailored this itinerary with your interests in: '));
+        note.appendChild(em);
+        note.appendChild(document.createTextNode('.'));
+        output.appendChild(note);
+      }
+
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
