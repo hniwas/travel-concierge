@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ destination.name }} – Travel Concierge</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><a href="/" style="color:inherit;text-decoration:none;">✈️ Travel Concierge</a></div>
+    <div class="nav-links">
+      <a href="/">Destinations</a>
+      <a href="/planner">Trip Planner</a>
+    </div>
+  </nav>
+
+  <div class="dest-hero">
+    <div class="dest-emoji">{{ destination.emoji }}</div>
+    <h1>{{ destination.name }}</h1>
+    <p>{{ destination.description }}</p>
+  </div>
+
+  <main class="container dest-container">
+    <div class="dest-grid">
+      <section class="dest-info card-static">
+        <h2>📋 Quick Facts</h2>
+        <ul class="fact-list">
+          <li><strong>Best Time to Visit:</strong> {{ destination.best_time }}</li>
+          <li><strong>Currency:</strong> {{ destination.currency }}</li>
+          <li><strong>Language:</strong> {{ destination.language }}</li>
+          <li><strong>Budget:</strong> {{ destination.budget_per_day }} per day</li>
+        </ul>
+        <div class="card-tags" style="margin-top:1rem;">
+          {% for tag in destination.tags %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="dest-highlights card-static">
+        <h2>⭐ Top Highlights</h2>
+        <ul class="highlight-list">
+          {% for h in destination.highlights %}
+          <li>{{ h }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="dest-packing card-static">
+        <h2>🎒 Suggested Packing List</h2>
+        <ul class="packing-list" id="packingList">
+          {% for item in packing_list %}
+          <li>
+            <label>
+              <input type="checkbox" onchange="togglePacked(this)" />
+              <span>{{ item }}</span>
+            </label>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+
+    <div class="back-link">
+      <a href="/">← Back to all destinations</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>✈️ Travel Concierge &mdash; Built during the S&amp;T AI Session &mdash; UWCC, June 2026</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
